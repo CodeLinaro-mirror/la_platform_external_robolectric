@@ -6,7 +6,6 @@ import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.N;
 import static android.os.Build.VERSION_CODES.O;
 import static android.os.Build.VERSION_CODES.R;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Verify.verifyNotNull;
 
 import android.annotation.SystemApi;
@@ -95,6 +94,7 @@ public class ShadowTelecomManager {
   private boolean readPhoneStatePermission = true;
   private boolean callPhonePermission = true;
   private boolean handleMmiValue = false;
+  private ConnectionService connectionService;
 
   public CallRequestMode getCallRequestMode() {
     return callRequestMode;
@@ -458,7 +458,7 @@ public class ShadowTelecomManager {
 
     PhoneAccountHandle phoneAccount = verifyNotNull(call.phoneAccount);
     ConnectionRequest request = buildConnectionRequestForIncomingCall(call);
-    ConnectionService service = setupConnectionService(phoneAccount);
+    ConnectionService service = getConnectionService(phoneAccount);
     return service.onCreateIncomingConnection(phoneAccount, request);
   }
 
@@ -477,7 +477,7 @@ public class ShadowTelecomManager {
 
     PhoneAccountHandle phoneAccount = verifyNotNull(call.phoneAccount);
     ConnectionRequest request = buildConnectionRequestForIncomingCall(call);
-    ConnectionService service = setupConnectionService(phoneAccount);
+    ConnectionService service = getConnectionService(phoneAccount);
     service.onCreateIncomingConnectionFailed(phoneAccount, request);
   }
 
@@ -537,7 +537,7 @@ public class ShadowTelecomManager {
 
     PhoneAccountHandle phoneAccount = verifyNotNull(call.phoneAccount);
     ConnectionRequest request = buildConnectionRequestForOutgoingCall(call);
-    ConnectionService service = setupConnectionService(phoneAccount);
+    ConnectionService service = getConnectionService(phoneAccount);
     return service.onCreateOutgoingConnection(phoneAccount, request);
   }
 
@@ -556,7 +556,7 @@ public class ShadowTelecomManager {
 
     PhoneAccountHandle phoneAccount = verifyNotNull(call.phoneAccount);
     ConnectionRequest request = buildConnectionRequestForOutgoingCall(call);
-    ConnectionService service = setupConnectionService(phoneAccount);
+    ConnectionService service = getConnectionService(phoneAccount);
     service.onCreateOutgoingConnectionFailed(phoneAccount, request);
   }
 
@@ -591,6 +591,25 @@ public class ShadowTelecomManager {
 
   public UnknownCallRecord getOnlyUnknownCall() {
     return Iterables.getOnlyElement(unknownCalls);
+  }
+
+  /**
+   * Set connection service.
+   *
+   * <p>This method can be used in case, when you already created connection service and would like
+   * to use it in telecom manager instead of creating new one.
+   *
+   * @param service existing connection service
+   */
+  public void setConnectionService(ConnectionService service) {
+    connectionService = service;
+  }
+
+  private ConnectionService getConnectionService(PhoneAccountHandle phoneAccount) {
+    if (connectionService == null) {
+      connectionService = setupConnectionService(phoneAccount);
+    }
+    return connectionService;
   }
 
   private static ConnectionService setupConnectionService(PhoneAccountHandle phoneAccount) {
@@ -633,7 +652,10 @@ public class ShadowTelecomManager {
   @Implementation(minSdk = M)
   @HiddenApi
   public void enablePhoneAccount(PhoneAccountHandle handle, boolean isEnabled) {
-    checkNotNull(getPhoneAccount(handle)).setIsEnabled(isEnabled);
+    if (getPhoneAccount(handle) == null) {
+      return;
+    }
+    getPhoneAccount(handle).setIsEnabled(isEnabled);
   }
 
   /**
