@@ -42,6 +42,7 @@ import android.content.integrity.IAppIntegrityManager;
 import android.content.pm.ICrossProfileApps;
 import android.content.pm.IShortcutService;
 import android.content.rollback.IRollbackManager;
+import android.hardware.ISensorPrivacyManager;
 import android.hardware.biometrics.IAuthService;
 import android.hardware.biometrics.IBiometricService;
 import android.hardware.fingerprint.IFingerprintService;
@@ -102,6 +103,7 @@ import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.Resetter;
 import org.robolectric.util.ReflectionHelpers;
+import android.companion.virtual.IVirtualDeviceManager;
 
 /** Shadow for {@link ServiceManager}. */
 @SuppressWarnings("NewApi")
@@ -139,6 +141,7 @@ public class ShadowServiceManager {
     addBinderService(Context.BLUETOOTH_SERVICE, IBluetooth.class);
     addBinderService(Context.WINDOW_SERVICE, IWindowManager.class);
     addBinderService(Context.NFC_SERVICE, INfcAdapter.class, true);
+    addBinderService(Context.VIRTUAL_DEVICE_SERVICE, IVirtualDeviceManager.class);
 
     if (RuntimeEnvironment.getApiLevel() >= JELLY_BEAN_MR1) {
       addBinderService(Context.USER_SERVICE, IUserManager.class);
@@ -205,6 +208,7 @@ public class ShadowServiceManager {
       addBinderService(Context.UWB_SERVICE, IUwbAdapter.class);
       addBinderService(Context.VCN_MANAGEMENT_SERVICE, IVcnManagementService.class);
       addBinderService(Context.TRANSLATION_MANAGER_SERVICE, ITranslationManager.class);
+      addBinderService(Context.SENSOR_PRIVACY_SERVICE, ISensorPrivacyManager.class);
     }
     if (RuntimeEnvironment.getApiLevel() >= TIRAMISU) {
       addBinderService(Context.AMBIENT_CONTEXT_SERVICE, IAmbientContextManager.class);
