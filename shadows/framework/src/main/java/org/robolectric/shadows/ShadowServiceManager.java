@@ -34,6 +34,7 @@ import android.app.usage.IUsageStatsManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.IBluetooth;
 import android.bluetooth.IBluetoothManager;
+import android.companion.ICompanionDeviceManager;
 import android.content.Context;
 import android.content.IClipboard;
 import android.content.IRestrictionsManager;
@@ -101,6 +102,7 @@ import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.Resetter;
 import org.robolectric.util.ReflectionHelpers;
+import android.companion.virtual.IVirtualDeviceManager;
 
 /** Shadow for {@link ServiceManager}. */
 @SuppressWarnings("NewApi")
@@ -138,6 +140,7 @@ public class ShadowServiceManager {
     addBinderService(Context.BLUETOOTH_SERVICE, IBluetooth.class);
     addBinderService(Context.WINDOW_SERVICE, IWindowManager.class);
     addBinderService(Context.NFC_SERVICE, INfcAdapter.class, true);
+    addBinderService(Context.VIRTUAL_DEVICE_SERVICE, IVirtualDeviceManager.class);
 
     if (RuntimeEnvironment.getApiLevel() >= JELLY_BEAN_MR1) {
       addBinderService(Context.USER_SERVICE, IUserManager.class);
@@ -171,6 +174,7 @@ public class ShadowServiceManager {
       addBinderService("mount", IStorageManager.class);
       addBinderService(Context.WIFI_AWARE_SERVICE, IWifiAwareManager.class);
       addBinderService(Context.STORAGE_STATS_SERVICE, IStorageStatsManager.class);
+      addBinderService(Context.COMPANION_DEVICE_SERVICE, ICompanionDeviceManager.class);
     } else {
       addBinderService("mount", "android.os.storage.IMountService");
     }

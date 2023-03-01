@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+import org.robolectric.util.ReflectionHelpers;
+import org.robolectric.util.ReflectionHelpers.ClassParameter;
 
 /** Unit test for ShadowCompanionDeviceManager. */
 @RunWith(AndroidJUnit4.class)
@@ -133,7 +135,8 @@ public class ShadowCompanionDeviceManagerTest {
             /* notifyOnDeviceNearby= */ false,
             /* revoked */ false,
             /* timeApprovedMs= */ 0,
-            /* lastTimeConnectedMs= */ 0);
+            /* lastTimeConnectedMs= */ 0,
+            /* systemDataSyncFlags= */ -1);
     assertThat(companionDeviceManager.getAssociations()).isEmpty();
     shadowCompanionDeviceManager.addAssociation(info);
     assertThat(companionDeviceManager.getMyAssociations()).contains(info);
@@ -189,6 +192,13 @@ public class ShadowCompanionDeviceManagerTest {
     assertThat(shadowCompanionDeviceManager.getLastAssociationRequest()).isSameInstanceAs(request);
     assertThat(shadowCompanionDeviceManager.getLastAssociationCallback())
         .isSameInstanceAs(callback);
+  }
+
+  @Test
+  @Config(minSdk = VERSION_CODES.TIRAMISU)
+  public void notifyDeviceAppeared() {
+    ReflectionHelpers.callInstanceMethod(
+        companionDeviceManager, "notifyDeviceAppeared", ClassParameter.from(int.class, 1));
   }
 
   private CompanionDeviceManager.Callback createCallback() {
