@@ -34,6 +34,7 @@ import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.RealObject;
 import org.robolectric.annotation.ReflectorObject;
 import org.robolectric.annotation.Resetter;
+import org.robolectric.util.Logger;
 import org.robolectric.util.ReflectionHelpers;
 import org.robolectric.util.reflector.Accessor;
 import org.robolectric.util.reflector.ForType;
@@ -279,8 +280,13 @@ public class ShadowActivityThread {
 
   @Resetter
   public static void reset() {
-    reflector(_ActivityThread_.class, RuntimeEnvironment.getActivityThread())
-        .getActivities()
-        .clear();
+    Object activityThread = RuntimeEnvironment.getActivityThread();
+    if (activityThread == null) {
+      Logger.warn(
+          "RuntimeEnvironment.getActivityThread() is null, an error likely occurred during test"
+              + " initialization.");
+    } else {
+      reflector(_ActivityThread_.class, activityThread).getActivities().clear();
+    }
   }
 }
