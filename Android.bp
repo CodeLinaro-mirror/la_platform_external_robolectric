@@ -84,6 +84,7 @@ java_device_for_host {
         "core-libart-for-host",
         "ext",
         "framework-all",
+        "framework-bluetooth",
         "icu4j-icudata-jarjar",
         "icu4j-icutzdata-jarjar",
         "ims-common",
