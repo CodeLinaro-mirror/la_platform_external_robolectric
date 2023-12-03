@@ -40,7 +40,7 @@ If you'd like to start a new project with Robolectric tests you can refer to `de
 
 ```groovy
 testImplementation "junit:junit:4.13.2"
-testImplementation "org.robolectric:robolectric:4.10.3"
+testImplementation "org.robolectric:robolectric:4.11.1"
 ```
 
 ## Building And Contributing
@@ -48,12 +48,6 @@ testImplementation "org.robolectric:robolectric:4.10.3"
 Robolectric is built using Gradle. Both IntelliJ and Android Studio can import the top-level `build.gradle` file and will automatically generate their project files from it.
 
 ### Prerequisites
-
-Those software configurations are recommended and tested.
-
-- JDK 17. Gradle JVM should be set to Java 17.
-  - For command line, make sure the environment variable `JAVA_HOME` is correctly point to JDK17, or set the build environment by [Gradle CLI option](https://docs.gradle.org/current/userguide/command_line_interface.html#sec:environment_options) `-Dorg.gradle.java.home="YourJdkHomePath"` or by [Gradle Properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) `org.gradle.java.home=YourJdkHomePath`.
-  - For both IntelliJ and Android Studio, see _Settings/Preferences | Build, Execution, Deployment | Build Tools | Gradle_.
 
 See [Building Robolectric](http://robolectric.org/building-robolectric/) for more details about setting up a build environment for Robolectric.
 
@@ -90,6 +84,6 @@ repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 dependencies {
-    testImplementation "org.robolectric:robolectric:4.11-SNAPSHOT"
+    testImplementation "org.robolectric:robolectric:4.12-SNAPSHOT"
 }
 ```
