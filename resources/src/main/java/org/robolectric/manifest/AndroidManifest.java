@@ -13,7 +13,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
@@ -620,7 +619,7 @@ public class AndroidManifest implements UsesSdk {
   @Override
   public int getMinSdkVersion() {
     parseAndroidManifest();
-    return minSdkVersion == null ? 16 : minSdkVersion;
+    return minSdkVersion == null ? 19 : minSdkVersion;
   }
 
   /**

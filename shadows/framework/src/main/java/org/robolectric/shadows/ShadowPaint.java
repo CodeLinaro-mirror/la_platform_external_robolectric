@@ -1,7 +1,6 @@
 package org.robolectric.shadows;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static android.os.Build.VERSION_CODES.KITKAT_WATCH;
 import static android.os.Build.VERSION_CODES.L;
@@ -20,7 +19,6 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
 import android.graphics.PathEffect;
-import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import org.robolectric.annotation.Implementation;
@@ -335,22 +333,22 @@ public class ShadowPaint {
   }
 
   @Implementation
-  protected final boolean isDither() {
+  protected boolean isDither() {
     return dither;
   }
 
   @Implementation
-  protected final boolean isAntiAlias() {
+  protected boolean isAntiAlias() {
     return (flags & Paint.ANTI_ALIAS_FLAG) == Paint.ANTI_ALIAS_FLAG;
   }
 
   @Implementation
-  protected final boolean isFilterBitmap() {
+  protected boolean isFilterBitmap() {
     return (flags & Paint.FILTER_BITMAP_FLAG) == Paint.FILTER_BITMAP_FLAG;
   }
 
   @Implementation
-  protected final void setFilterBitmap(boolean filterBitmap) {
+  protected void setFilterBitmap(boolean filterBitmap) {
     this.flags =
         (flags & ~Paint.FILTER_BITMAP_FLAG) | (filterBitmap ? Paint.FILTER_BITMAP_FLAG : 0);
   }
@@ -396,7 +394,7 @@ public class ShadowPaint {
     return breakText(text, maxWidth, measuredWidth);
   }
 
-  @Implementation(minSdk = JELLY_BEAN_MR2, maxSdk = KITKAT_WATCH)
+  @Implementation(maxSdk = KITKAT_WATCH)
   protected int native_breakText(
       char[] text, int index, int count, float maxWidth, int bidiFlags, float[] measuredWidth) {
     return breakText(text, maxWidth, measuredWidth);
@@ -453,7 +451,7 @@ public class ShadowPaint {
     return breakText(text, maxWidth, measuredWidth);
   }
 
-  @Implementation(minSdk = JELLY_BEAN_MR2, maxSdk = KITKAT_WATCH)
+  @Implementation(maxSdk = KITKAT_WATCH)
   protected int native_breakText(
       String text, boolean measureForwards, float maxWidth, int bidiFlags, float[] measuredWidth) {
     return breakText(text, maxWidth, measuredWidth);
@@ -661,7 +659,7 @@ public class ShadowPaint {
     return nGetRunAdvance(0, text.toCharArray(), start, end, contextStart, contextEnd, isRtl, 0);
   }
 
-  @Implementation(minSdk = JELLY_BEAN_MR2, maxSdk = KITKAT)
+  @Implementation(maxSdk = KITKAT)
   protected static float native_getTextRunAdvances(
       int nativeObject,
       char[] text,
@@ -676,7 +674,7 @@ public class ShadowPaint {
         0, text, index, index + count, contextIndex, contextIndex + contextCount, false, index);
   }
 
-  @Implementation(minSdk = JELLY_BEAN_MR2, maxSdk = KITKAT)
+  @Implementation(maxSdk = KITKAT)
   protected static float native_getTextRunAdvances(
       int nativeObject,
       String text,
