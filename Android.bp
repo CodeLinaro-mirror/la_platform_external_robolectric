@@ -16,8 +16,8 @@ package {
     default_visibility: [
         "//external/robolectric:__subpackages__",
         "//test/robolectric-extensions:__subpackages__",
-        "//frameworks/base/packages/SettingsLib/tests/robotests:__subpackages__",
-        "//packages/apps/Settings/tests/robotests:__subpackages__"
+        "//frameworks/base/packages/SettingsLib:__subpackages__",
+        "//packages/apps/Settings/tests/robotests:__subpackages__",
     ],
     default_applicable_licenses: ["external_robolectric_license"],
 }
@@ -105,8 +105,17 @@ java_library_host {
         "robolectric_tzdata",
         "robolectric_framework_res",
     ],
+    // WARNING: DO NOT ADD NEW DEPENDENCIES ON THIS MODULE OR ITS DIST JAR
+    // This dist jar is an internal implementation detail. For external Gradle builds (outside
+    // the platform), consumers should access robolectric via the maven repository. For
+    // platform robolectric usage (in Soong), consumers should use the
+    // android_robolectric_test module type.
     dist: {
         targets: [
+            // Add android-all-robolectric.jar to private_api_stubs dist target for easier
+            // packaging by scripts. This jar is useful for running robolectric tests on
+            // platform app Gradle builds that compile against hidden platform APIs.
+            "private_api_stubs",
             "sdk",
             "win_sdk",
         ],
@@ -121,7 +130,7 @@ java_library_host {
         ":__subpackages__",
         "//prebuilts/misc/common/robolectric",
         "//test/robolectric-extensions:__subpackages__",
-        "//frameworks/base/packages/SettingsLib/tests/robotests:__subpackages__",
+        "//frameworks/base/packages/SettingsLib:__subpackages__",
     ],
 }
 
@@ -187,11 +196,11 @@ java_host_for_device {
       "//frameworks/base/services/robotests:__pkg__",
       "//frameworks/base/services/robotests/backup:__pkg__",
       "//frameworks/base/packages/CredentialManager:__subpackages__",
-      "//frameworks/base/packages/SettingsLib/tests/robotests:__subpackages__",
-      "//frameworks/base/packages/SettingsLib/Spa/screenshot:__subpackages__",
+      "//frameworks/base/packages/SettingsLib:__subpackages__",
       "//frameworks/base/packages/SystemUI:__pkg__",
       "//packages/apps/Launcher3/tests:__pkg__",
       "//frameworks/libs/systemui/animationlib:__pkg__",
+      "//frameworks/libs/systemui/tracinglib:__pkg__",
       "//frameworks/base/tests/InputScreenshotTest:__subpackages__",
       "//frameworks/opt/car/setupwizard/library/main/tests/robotests:__pkg__",
       "//frameworks/opt/localepicker/tests:__pkg__",
