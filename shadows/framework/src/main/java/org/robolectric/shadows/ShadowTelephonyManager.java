@@ -1,7 +1,6 @@
 package org.robolectric.shadows;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.N;
@@ -33,6 +32,7 @@ import android.os.SystemProperties;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.Annotation.NetworkType;
 import android.telephony.Annotation.OverrideNetworkType;
+import android.telephony.CarrierRestrictionRules;
 import android.telephony.CellInfo;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
@@ -68,6 +68,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.HiddenApi;
 import org.robolectric.annotation.Implementation;
@@ -179,6 +180,8 @@ public class ShadowTelephonyManager {
   private static volatile boolean emergencyCallbackMode;
   private static Map<Integer, List<EmergencyNumber>> emergencyNumbersList;
   private static volatile boolean isDataRoamingEnabled;
+  private /*CarrierRestrictionRules*/ Object carrierRestrictionRules;
+  private final AtomicInteger modemRebootCount = new AtomicInteger();
 
   /**
    * Should be {@link TelephonyManager.BootstrapAuthenticationCallback} but this object was
@@ -434,7 +437,7 @@ public class ShadowTelephonyManager {
     setNetworkOperatorName(networkOperatorName);
   }
 
-  @Implementation(minSdk = LOLLIPOP)
+  @Implementation
   protected String getImei() {
     checkReadPhoneStatePermission();
     return imei;
@@ -675,6 +678,12 @@ public class ShadowTelephonyManager {
 
   private void checkReadPrivilegedPhoneStatePermission() {
     if (!checkPermission(permission.READ_PRIVILEGED_PHONE_STATE)) {
+      throw new SecurityException();
+    }
+  }
+
+  private void checkModifyPhoneStatePermission() {
+    if (!checkPermission(permission.MODIFY_PHONE_STATE)) {
       throw new SecurityException();
     }
   }
@@ -1197,7 +1206,7 @@ public class ShadowTelephonyManager {
     return carrierPackageNames.get(phoneId);
   }
 
-  @Implementation(minSdk = LOLLIPOP)
+  @Implementation
   @HiddenApi
   protected List<String> getCarrierPackageNamesForIntent(Intent intent) {
     return carrierPackageNames.get(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -1661,5 +1670,36 @@ public class ShadowTelephonyManager {
   @Implementation(minSdk = Q)
   protected void setDataRoamingEnabled(boolean isDataRoamingEnabled) {
     ShadowTelephonyManager.isDataRoamingEnabled = isDataRoamingEnabled;
+  }
+
+  /**
+   * Sets the value to be returned by {@link #getCarrierRestrictionRules()}. Marked as public in
+   * order to allow it to be used as a test API.
+   *
+   * @param carrierRestrictionRules An object of type {@link CarrierRestrictionRules}
+   */
+  public void setCarrierRestrictionRules(Object carrierRestrictionRules) {
+    Preconditions.checkState(carrierRestrictionRules instanceof CarrierRestrictionRules);
+    this.carrierRestrictionRules = carrierRestrictionRules;
+  }
+
+  /**
+   * Implementation for {@link TelephonyManager#getCarrierRestrictionRules} that is set for tests by
+   * {@link TelephonyManager#setCarrierRestrictionRules}.
+   */
+  @Implementation(minSdk = Build.VERSION_CODES.Q)
+  protected /*CarrierRestrictionRules*/ Object getCarrierRestrictionRules() {
+    return carrierRestrictionRules;
+  }
+
+  /** Implementation for {@link TelephonyManager#rebootModem} */
+  @Implementation(minSdk = Build.VERSION_CODES.TIRAMISU)
+  protected void rebootModem() {
+    checkModifyPhoneStatePermission();
+    modemRebootCount.incrementAndGet();
+  }
+
+  public int getModemRebootCount() {
+    return modemRebootCount.get();
   }
 }
