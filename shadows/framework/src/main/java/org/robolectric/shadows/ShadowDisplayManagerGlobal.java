@@ -91,11 +91,10 @@ public class ShadowDisplayManagerGlobal {
     displayManagerGlobal.setLock(new Object());
     List<Handler> displayListeners = createDisplayListeners();
     displayManagerGlobal.setDisplayListeners(displayListeners);
-    if (ReflectionHelpers.hasField(DisplayManagerGlobal.class,
-            TOPOLOGY_LISTENERS_FIELD_NAME)) {
+    displayManagerGlobal.setDisplayInfoCache(new SparseArray<>());
+    if (ReflectionHelpers.hasField(DisplayManagerGlobal.class, TOPOLOGY_LISTENERS_FIELD_NAME)) {
       displayManagerGlobal.setTopologyListeners(new CopyOnWriteArrayList<>());
     }
-    displayManagerGlobal.setDisplayInfoCache(new SparseArray<>());
     return instance;
   }
 
@@ -324,7 +323,7 @@ public class ShadowDisplayManagerGlobal {
       }
 
       displayInfos.put(displayId, displayInfo);
-      notifyListeners(displayId, DisplayManagerGlobal.EVENT_DISPLAY_CHANGED);
+      notifyListeners(displayId, DisplayManagerGlobal.EVENT_DISPLAY_BASIC_CHANGED);
     }
 
     private synchronized void removeDisplay(int displayId) {
@@ -419,10 +418,10 @@ public class ShadowDisplayManagerGlobal {
     @Accessor("mDisplayListeners")
     void setDisplayListeners(List<Handler> list);
 
-    @Accessor(TOPOLOGY_LISTENERS_FIELD_NAME)
-    void setTopologyListeners(List<Handler> list);
-
     @Accessor("mDisplayInfoCache")
     void setDisplayInfoCache(SparseArray<DisplayInfo> displayInfoCache);
+
+    @Accessor("mTopologyListeners")
+    void setTopologyListeners(CopyOnWriteArrayList<?> listeners);
   }
 }
