@@ -5,7 +5,6 @@ import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.IBluetoothGatt;
-import android.bluetooth.IDistanceMeasurement;
 import android.bluetooth.le.DistanceMeasurementManager;
 import android.bluetooth.le.DistanceMeasurementMethod;
 import android.bluetooth.le.DistanceMeasurementParams;
@@ -15,7 +14,6 @@ import android.content.AttributionSource;
 import android.os.CancellationSignal;
 import android.os.ParcelUuid;
 import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,41 +48,49 @@ public class ShadowDistanceMeasurementManager {
       DistanceMeasurementParams params,
       Executor executor,
       DistanceMeasurementSession.Callback callback) {
-    if (ReflectionHelpers.hasConstructor(
+    Class<?> iDistanceMeasurementClazz = null;
+    try {
+      iDistanceMeasurementClazz =
+          ReflectionHelpers.loadClass(
+              Thread.currentThread().getContextClassLoader(),
+              "android.bluetooth.IDistanceMeasurement");
+    } catch (RuntimeException e) {
+      // no op, class not available
+    }
+    if (iDistanceMeasurementClazz != null
+        && ReflectionHelpers.hasConstructor(
             DistanceMeasurementSession.class,
-            IDistanceMeasurement.class,
+            iDistanceMeasurementClazz,
             ParcelUuid.class,
             DistanceMeasurementParams.class,
             Executor.class,
             AttributionSource.class,
             DistanceMeasurementSession.Callback.class)) {
       sessionMap.put(
-              params.getDevice(),
-              ReflectionHelpers.callConstructor(
-                      DistanceMeasurementSession.class,
-                      ClassParameter.from(IDistanceMeasurement.class,
-                              ReflectionHelpers.createNullProxy(IDistanceMeasurement.class)),
-                      ClassParameter.from(ParcelUuid.class, new ParcelUuid(UUID.randomUUID())),
-                      ClassParameter.from(DistanceMeasurementParams.class, params),
-                      ClassParameter.from(Executor.class, executor),
-                      ClassParameter.from(AttributionSource.class,
-                              AttributionSource.myAttributionSource()),
-                      ClassParameter.from(DistanceMeasurementSession.Callback.class, callback)));
+          params.getDevice(),
+          ReflectionHelpers.callConstructor(
+              DistanceMeasurementSession.class,
+              ClassParameter.from(
+                  iDistanceMeasurementClazz,
+                  ReflectionHelpers.createNullProxy(iDistanceMeasurementClazz)),
+              ClassParameter.from(ParcelUuid.class, new ParcelUuid(UUID.randomUUID())),
+              ClassParameter.from(DistanceMeasurementParams.class, params),
+              ClassParameter.from(Executor.class, executor),
+              ClassParameter.from(AttributionSource.class, AttributionSource.myAttributionSource()),
+              ClassParameter.from(DistanceMeasurementSession.Callback.class, callback)));
     } else {
       sessionMap.put(
-              params.getDevice(),
-              ReflectionHelpers.callConstructor(
-                      DistanceMeasurementSession.class,
-                      ClassParameter.from(IBluetoothGatt.class,
-                              ReflectionHelpers.createNullProxy(IBluetoothGatt.class)),
-                      ClassParameter.from(ParcelUuid.class, new ParcelUuid(UUID.randomUUID())),
-                      ClassParameter.from(DistanceMeasurementParams.class, params),
-                      ClassParameter.from(Executor.class, executor),
-                      ClassParameter.from(AttributionSource.class,
-                              AttributionSource.myAttributionSource()),
-                      ClassParameter.from(DistanceMeasurementSession.Callback.class, callback)));
+          params.getDevice(),
+          ReflectionHelpers.callConstructor(
+              DistanceMeasurementSession.class,
+              ClassParameter.from(
+                  IBluetoothGatt.class, ReflectionHelpers.createNullProxy(IBluetoothGatt.class)),
+              ClassParameter.from(ParcelUuid.class, new ParcelUuid(UUID.randomUUID())),
+              ClassParameter.from(DistanceMeasurementParams.class, params),
+              ClassParameter.from(Executor.class, executor),
+              ClassParameter.from(AttributionSource.class, AttributionSource.myAttributionSource()),
+              ClassParameter.from(DistanceMeasurementSession.Callback.class, callback)));
     }
-
     sessionCallbackMap.put(params.getDevice(), callback);
 
     return new CancellationSignal();
