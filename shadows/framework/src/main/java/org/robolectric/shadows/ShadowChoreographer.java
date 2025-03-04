@@ -217,8 +217,8 @@ public abstract class ShadowChoreographer {
   }
 
   private static Duration getDefaultFrameDelay() {
-    // Uses 15ms to approximate 60fps.
-    return Duration.ofMillis(Integer.getInteger("robolectric.defaultFrameDelayMs", 15));
+    // TODO: change this to approximate 60fps.
+    return Duration.ofMillis(Integer.getInteger("robolectric.defaultFrameDelayMs", 1));
   }
 
   /** Accessor interface for {@link Choreographer}'s internals */

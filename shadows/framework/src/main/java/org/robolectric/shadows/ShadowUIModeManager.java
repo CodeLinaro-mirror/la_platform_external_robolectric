@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.robolectric.util.reflector.Reflector.reflector;
 
 import android.annotation.SystemApi;
-import android.app.IUiModeManager;
 import android.app.UiModeManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.IBinder;
 import android.provider.Settings;
 import com.android.internal.annotations.GuardedBy;
 import com.google.common.collect.ImmutableSet;
@@ -28,7 +26,6 @@ import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.RealObject;
 import org.robolectric.annotation.Resetter;
 import org.robolectric.util.reflector.Accessor;
-import org.robolectric.util.reflector.Constructor;
 import org.robolectric.util.reflector.ForType;
 import org.robolectric.util.reflector.Static;
 import org.robolectric.util.reflector.WithType;
@@ -272,18 +269,8 @@ public class ShadowUIModeManager {
   @Resetter
   public static void reset() {
     if (RuntimeEnvironment.getApiLevel() >= V.SDK_INT) {
-      IUiModeManager service =
-          IUiModeManager.Stub.asInterface(
-              reflector(ServiceManagerReflector.class).getServiceOrThrow(Context.UI_MODE_SERVICE));
-      reflector(UiModeManagerReflector.class)
-          .setGlobals(reflector(UiModeManagerGlobalsReflector.class).newGlobals(service));
+      reflector(UiModeManagerReflector.class).setGlobals(null);
     }
-  }
-
-  @ForType(className = "android.os.ServiceManager")
-  interface ServiceManagerReflector {
-    @Static
-    IBinder getServiceOrThrow(String name);
   }
 
   @ForType(UiModeManager.class)
@@ -307,9 +294,6 @@ public class ShadowUIModeManager {
   interface UiModeManagerGlobalsReflector {
     @Accessor("mContrast")
     void setContrast(float contrast);
-
-    @Constructor
-    Object newGlobals(IUiModeManager iUiModeManager);
   }
 
   private void assertHasPermission(String... permissions) {

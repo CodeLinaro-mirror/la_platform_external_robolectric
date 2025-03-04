@@ -89,8 +89,7 @@ public final class ExpectedLogMessagesRule implements TestRule {
           // non-hardware accelerated Canvas. Skipping animation.
           "RippleDrawable",
           // Logged in in-development versions of android with AconfigStorageException
-          "FeatureFlagsImpl",
-          "FeatureFlagsImplExport");
+          "FeatureFlagsImpl");
 
   private final Set<ExpectedLogItem> expectedLogs = new HashSet<>();
   private final Set<LogItem> observedLogs = new HashSet<>();

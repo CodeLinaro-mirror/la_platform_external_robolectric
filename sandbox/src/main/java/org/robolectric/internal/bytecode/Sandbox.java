@@ -106,11 +106,6 @@ public class Sandbox {
         });
   }
 
-  // check if the sandbox is shutdown
-  public boolean isShutdown() {
-    return executorService.isShutdown();
-  }
-
   /** Cleans up resources that have been opened by this Sandbox. */
   public void shutdown() {
     executorService.shutdown();

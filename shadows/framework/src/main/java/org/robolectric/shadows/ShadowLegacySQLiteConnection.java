@@ -49,12 +49,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
-import org.robolectric.annotation.InDevelopment;
 import org.robolectric.annotation.Resetter;
 import org.robolectric.shadows.util.SQLiteLibraryLoader;
 import org.robolectric.util.PerfStatsCollector;
-import org.robolectric.versioning.AndroidVersions.V;
-import org.robolectric.versioning.AndroidVersions.Baklava;
 
 /** Shadow for {@link android.database.sqlite.SQLiteConnection} that is backed by sqlite4java. */
 @Implements(value = android.database.sqlite.SQLiteConnection.class, isInAndroidSdk = false)
@@ -104,14 +101,8 @@ public class ShadowLegacySQLiteConnection extends ShadowSQLiteConnection {
     CONNECTIONS.reset();
   }
 
-  @Implementation(maxSdk=V.SDK_INT)
+  @Implementation
   protected static void nativeClose(long connectionPtr) {
-    CONNECTIONS.close(connectionPtr);
-  }
-
-  @InDevelopment
-  @Implementation(minSdk=Baklava.SDK_INT)
-  protected static void nativeClose(long connectionPtr, boolean fast) {
     CONNECTIONS.close(connectionPtr);
   }
 
