@@ -1,6 +1,7 @@
 package org.robolectric.shadows;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION_CODES.BAKLAVA;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
@@ -34,7 +35,6 @@ import org.robolectric.annotation.Implements;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.util.ReflectionHelpers;
 import org.robolectric.util.ReflectionHelpers.ClassParameter;
-import org.robolectric.versioning.AndroidVersions.Baklava;
 
 /** Shadow for CompanionDeviceManager. */
 @Implements(value = CompanionDeviceManager.class, minSdk = VERSION_CODES.O)
@@ -253,6 +253,15 @@ public class ShadowCompanionDeviceManager {
 
   @Implementation(minSdk = VERSION_CODES.TIRAMISU)
   protected List<AssociationInfo> getMyAssociations() {
+    return getAssociationInfos();
+  }
+
+  @Implementation(minSdk = VERSION_CODES.TIRAMISU)
+  protected List<AssociationInfo> getAllAssociations() {
+    return getAssociationInfos();
+  }
+
+  private List<AssociationInfo> getAssociationInfos() {
     return this.associations.stream()
         .map(this::createAssociationInfo)
         .collect(toCollection(ArrayList::new));
@@ -288,7 +297,7 @@ public class ShadowCompanionDeviceManager {
    * @param associationId - id of association to attempt removal for.
    * @return true if value was set previously by user, false otherwise.
    */
-  @Implementation(minSdk = Baklava.SDK_INT)
+  @Implementation(minSdk = BAKLAVA)
   protected boolean removeBond(int associationId) {
     lastRemoveBondAssociationId = associationId;
     Optional<RoboAssociationInfo> association =

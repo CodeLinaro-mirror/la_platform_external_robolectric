@@ -1,6 +1,7 @@
 package org.robolectric.shadows;
 
 import static android.Manifest.permission.ASSOCIATE_COMPANION_DEVICES;
+import static android.os.Build.VERSION_CODES.BAKLAVA;
 import static android.os.Build.VERSION_CODES.O;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -29,7 +30,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.robolectric.util.ReflectionHelpers.ClassParameter;
-import org.robolectric.versioning.AndroidVersions.Baklava;
 
 /** Unit test for ShadowCompanionDeviceManager. */
 @RunWith(AndroidJUnit4.class)
@@ -156,6 +156,7 @@ public class ShadowCompanionDeviceManagerTest {
     assertThat(companionDeviceManager.getAssociations()).isEmpty();
     shadowCompanionDeviceManager.addAssociation(info);
     assertThat(companionDeviceManager.getMyAssociations()).contains(expectedInfo);
+    assertThat(companionDeviceManager.getAllAssociations()).contains(expectedInfo);
   }
 
   @Test
@@ -213,6 +214,7 @@ public class ShadowCompanionDeviceManagerTest {
     assertThat(companionDeviceManager.getAssociations()).isEmpty();
     shadowCompanionDeviceManager.addAssociation(info);
     assertThat(companionDeviceManager.getMyAssociations()).contains(info);
+    assertThat(companionDeviceManager.getAllAssociations()).contains(info);
   }
 
   @Test
@@ -230,6 +232,7 @@ public class ShadowCompanionDeviceManagerTest {
     companionDeviceManager.disassociate(1);
     assertThat(companionDeviceManager.getAssociations()).isEmpty();
     assertThat(companionDeviceManager.getMyAssociations()).isEmpty();
+    assertThat(companionDeviceManager.getAllAssociations()).isEmpty();
   }
 
   @Test
@@ -371,7 +374,7 @@ public class ShadowCompanionDeviceManagerTest {
   }
 
   @Test
-  @Config(minSdk = Baklava.SDK_INT)
+  @Config(minSdk = BAKLAVA)
   public void testRemoveBond_returnsTrueWhenPreSpecified() {
     shadowCompanionDeviceManager.addAssociation(MAC_ADDRESS);
     int id = shadowCompanionDeviceManager.getMyAssociations().get(0).getId();
@@ -384,7 +387,7 @@ public class ShadowCompanionDeviceManagerTest {
   }
 
   @Test
-  @Config(minSdk = Baklava.SDK_INT)
+  @Config(minSdk = BAKLAVA)
   public void testRemoveBond_returnsFalseWhenPreSpecified() {
     shadowCompanionDeviceManager.addAssociation(MAC_ADDRESS);
     int id = shadowCompanionDeviceManager.getMyAssociations().get(0).getId();
@@ -397,7 +400,7 @@ public class ShadowCompanionDeviceManagerTest {
   }
 
   @Test
-  @Config(minSdk = Baklava.SDK_INT)
+  @Config(minSdk = BAKLAVA)
   public void testRemoveBond_returnsFalseIfNoAssociation() {
     shadowCompanionDeviceManager.markAssociationBondRemovable(1);
 
@@ -408,13 +411,13 @@ public class ShadowCompanionDeviceManagerTest {
   }
 
   @Test
-  @Config(minSdk = Baklava.SDK_INT)
+  @Config(minSdk = BAKLAVA)
   public void testGetLastRemoveBondAssociationBeforeCalled() {
     assertThat(shadowCompanionDeviceManager.getLastRemoveBondAssociationId()).isEqualTo(-1);
   }
 
   @Test
-  @Config(minSdk = Baklava.SDK_INT)
+  @Config(minSdk = BAKLAVA)
   public void testRemoveBond_returnsFalseIfNoValuePreSpecified() {
     shadowCompanionDeviceManager.addAssociation(MAC_ADDRESS);
     int id = shadowCompanionDeviceManager.getMyAssociations().get(0).getId();
