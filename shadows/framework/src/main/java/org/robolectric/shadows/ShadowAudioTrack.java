@@ -1,6 +1,7 @@
 package org.robolectric.shadows;
 
 import static android.media.AudioTrack.ERROR_DEAD_OBJECT;
+import static android.os.Build.VERSION_CODES.BAKLAVA;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.N;
 import static android.os.Build.VERSION_CODES.O_MR1;
@@ -15,6 +16,7 @@ import static android.os.Build.VERSION_CODES.CINNAMON_BUN;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.robolectric.shadow.api.Shadow.directlyOn;
+import static org.robolectric.versioning.VersionCalculator.POST_BAKLAVA;
 
 import android.annotation.RequiresApi;
 import android.media.AudioAttributes;
@@ -141,8 +143,7 @@ public class ShadowAudioTrack {
         new AudioFormatInfo(
             format.getEncoding(),
             format.getSampleRate(),
-            format.getChannelMask(),
-            format.getChannelIndexMask()),
+            format.getChannelMasks()),
         new AudioAttributesInfo(attr.getContentType(), attr.getUsage(), attr.getFlags()));
   }
 
@@ -197,7 +198,7 @@ public class ShadowAudioTrack {
     return 8;
   }
 
-  @Implementation(minSdk = Q)
+  @Implementation(minSdk = Q, maxSdk = BAKLAVA)
   protected static boolean native_is_direct_output_supported(
       int encoding,
       int sampleRate,
@@ -208,6 +209,19 @@ public class ShadowAudioTrack {
       int flags) {
     return directSupportedFormats.containsEntry(
         new AudioFormatInfo(encoding, sampleRate, channelMask, channelIndexMask),
+        new AudioAttributesInfo(contentType, usage, flags));
+  }
+
+  @Implementation(minSdk = CINNAMON_BUN)
+  protected static boolean native_is_direct_output_supported(
+      int encoding,
+      int sampleRate,
+      Object channelMasks,
+      int contentType,
+      int usage,
+      int flags) {
+    return directSupportedFormats.containsEntry(
+        new AudioFormatInfo(encoding, sampleRate, (AudioFormat.ChannelMasks) channelMasks),
         new AudioAttributesInfo(contentType, usage, flags));
   }
 
@@ -365,8 +379,7 @@ public class ShadowAudioTrack {
       Object /*WeakReference<AudioTrack>*/ audioTrack,
       Object /*AudioAttributes*/ attributes,
       int[] sampleRate,
-      int channelMask,
-      int channelIndexMask,
+      Object /*AudioFormat.ChannelMasks*/ channelMasks,
       int audioFormat,
       int buffSizeInBytes,
       int mode,
@@ -629,14 +642,16 @@ public class ShadowAudioTrack {
   private static class AudioFormatInfo {
     private final int encoding;
     private final int sampleRate;
-    private final int channelMask;
-    private final int channelIndexMask;
+    private final @Nonnull AudioFormat.ChannelMasks channelMasks;
 
     public AudioFormatInfo(int encoding, int sampleRate, int channelMask, int channelIndexMask) {
+      this(encoding, sampleRate, new AudioFormat.ChannelMasks(channelMask, channelIndexMask));
+    }
+
+    public AudioFormatInfo(int encoding, int sampleRate, AudioFormat.ChannelMasks channelMasks) {
       this.encoding = encoding;
       this.sampleRate = sampleRate;
-      this.channelMask = channelMask;
-      this.channelIndexMask = channelIndexMask;
+      this.channelMasks = channelMasks != null ? channelMasks : new AudioFormat.ChannelMasks();
     }
 
     @Override
@@ -651,16 +666,14 @@ public class ShadowAudioTrack {
       AudioFormatInfo other = (AudioFormatInfo) o;
       return encoding == other.encoding
           && sampleRate == other.sampleRate
-          && channelMask == other.channelMask
-          && channelIndexMask == other.channelIndexMask;
+          && channelMasks.equals(other.channelMasks);
     }
 
     @Override
     public int hashCode() {
       int result = encoding;
       result = 31 * result + sampleRate;
-      result = 31 * result + channelMask;
-      result = 31 * result + channelIndexMask;
+      result = 31 * result + channelMasks.hashCode();
       return result;
     }
   }
